@@ -1,0 +1,58 @@
+*{
+	padding : 0;
+	margin : 0;
+}
+
+
+
+#mask{
+	position : fixed;
+	top : 0;
+	width : 100%;
+	height : 100%;
+	background-color: rgba(0,0,0,0.8);
+	z-index : 1000;
+}
+.pic-container{
+	width : 800px;
+	height : 200px;
+	margin : 100px;
+	background-color: #fff;
+	border-radius: 5px;
+	border : 1px solid #dedede;
+}
+.pic-container .pic-title{
+	width : 800px;
+	height : 50px;
+	line-height: 50px;
+	background-color : #eee;
+	border-radius: 5px 5px 0 0;
+	text-align: center;
+}
+.pic-container .pic-section{
+	float : left;
+	margin : 20px 0 20px 20px;
+	max-width : 200px;
+	max-height : 100px;
+	overflow: hidden;
+	background-color : #f7f7f7;
+}
+.pic-container .pic-section img{
+	width : 100%;
+	height : 100%;
+}
+
+
+
+#pic-popup{
+	position : fixed;
+	width : 800px;
+	height : 500px;
+	border-radius: 5px;
+	background: #fff url(../icon/loading.gif) no-repeat center center;
+	top : 50%;
+	left : 50%;
+	margin-left : -400px;
+	margin-top : -250px;
+	z-index : 1001;
+}
