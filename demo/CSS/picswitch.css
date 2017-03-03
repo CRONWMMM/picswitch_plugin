@@ -34,6 +34,10 @@
 		border-radius: 0 0 0 50px;
 		background : rgba(0,0,0,0.6) url(../icon/close.png) no-repeat 18px 6px;
 	}
+	#picswitch .pic-close:hover{
+		cursor : pointer;
+	}
+
 
 	/*图片预览*/
 	#picswitch .pic-view{
@@ -41,10 +45,9 @@
 	
 		width : 100%;
 		height : 100%;
-
-		background-color: #eee;
 	}
 	#picswitch .pic-view .pic-btn{
+		display : none;
 		position : absolute;
 		top : 0;
 		z-index : 1001;
