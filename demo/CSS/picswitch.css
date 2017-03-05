@@ -4,6 +4,7 @@
 
 /*图片弹框模块*/
 	#picswitch{
+		display : none;
 		position : fixed;
 		z-index : 1001;
 		top : 50%;
