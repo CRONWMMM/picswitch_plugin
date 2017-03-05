@@ -98,6 +98,20 @@
 				this.$caption   = $("#picswitch .pic-caption");			// 信息展示对象
 				this.$des       = $("#picswitch .pic-des");				// 描述对象
 				this.$index     = $("#picswitch .pic-index");			// Index对象
+
+				this.containerPadding = {
+					top    : parseInt(this.$picswitch.css('padding-top')),
+					right  : parseInt(this.$picswitch.css('padding-right')),
+					bottom : parseInt(this.$picswitch.css('padding-bottom')),
+					left   : parseInt(this.$picswitch.css('padding-left'))
+				};
+				this.containerBorder = {
+					top    : parseInt(this.$picswitch.css('border-top-width')),
+					right  : parseInt(this.$picswitch.css('border-right-width')),
+					bottom : parseInt(this.$picswitch.css('border-bottom-width')),
+					left   : parseInt(this.$picswitch.css('border-left-width'))
+				};
+				
 			},
 
 
@@ -105,10 +119,12 @@
 			// 如果是图像组就将图像组里的所有图片信息添加到相册数组中
 			// @param  $this参数为当前点击的对象
 			start : function($this){
-				var self  = this,
+				var self         = this,
+					currentsrc   = $this.attr("href"),
+					title        = $this.attr("title");
 					currentgroup = $this.attr("data-picswitch");
 				fillAlbum(currentgroup);
-				initPop();
+				self.initPop(currentsrc);
 				
 
 				/**
@@ -127,14 +143,74 @@
 					}
 				}
 
-				/**
-				 * initPop 函数用于初始化图片弹窗
-				 * @return {[type]} [description]
-				 */
-				function initPop(){
+			},
 
+
+			/**
+			 * initPop函数显示初始化弹框和遮罩
+			 * @param  currentSrc 参数为当前点击的需要加载图片的src
+			 */
+			initPop : function(currentSrc){
+				var self = this;
+				self.$close.hide();
+				self.$caption.hide();
+				self.$mask.fadeIn(self.options.fadeDuration);
+				self.$picswitch.fadeIn(self.options.fadeDuration);
+				self.prevLoad(currentSrc);
+			},
+
+
+			/**
+			 * prevLoad函数为预加载图片函数
+			 * @param  loadSrc 参数为需要预加载的src
+			 */
+			prevLoad : function(loadSrc){
+				var self = this,
+					img  = new Image();
+				for(var i=0;i<self.album.length;i++){
+					if(self.album[i].src === loadSrc){
+						self.currentImageIndex = i;
+						break;
+					}
 				}
+				self.$img.css({width : "auto",height : "auto"}).hide();
+				img.onload = function(){
+					var width          = 0,
+						height         = 0,
+						imageHeight    = 0,
+						imageWidth     = 0,
+						maxImageHeight = 0,
+						maxImageWidth  = 0,
+						scale          = 0,
+						windowHeight   = $(window).height(),
+						windowWidth    = $(window).width();
+					self.$img.attr("src",img.src);
+					imageWidth     = self.$img.width();
+					imageHeight    = self.$img.height();
+					maxImageWidth  = parseInt(windowWidth - (self.containerPadding.left + self.containerPadding.right) - (self.containerBorder.left + self.containerBorder.right));
+					maxImageHeight = parseInt(windowHeight - (self.containerPadding.top + self.containerPadding.bottom) - (self.containerBorder.top + self.containerBorder.bottom) - self.options.browserDistance);
+					
+					if(imageWidth > maxImageWidth || imageHeight > maxImageHeight){
+						scale  = Math.min(maxImageWidth/imageWidth,maxImageHeight/imageHeight,1);
+						width  = parseInt(imageWidth*scale);
+						height = parseInt(imageHeight*scale);
+					}else{
+						width  = imageWidth;
+						height = imageHeight;
+					}
 
+					self.$picswitch.animate({
+						width      : width,
+						height     : height,
+						marginLeft : -width/2,
+						marginTop  : -height/2
+					},self.options.deforDuration,function(){
+						self.$img.css("width","100%").fadeIn(self.options.imageFadeDuration);
+						self.$close.fadeIn(self.options.imageFadeDuration);
+						self.$caption.fadeIn(self.options.imageFadeDuration);
+					});
+				};
+				img.src = loadSrc;
 			}
 	
 
@@ -143,9 +219,10 @@
 
 		PicSwitch.defaults = {
 			albumLabel        : '0 / 0',							// 图片索引
-			fadeDuration      : 600,								// 淡入淡出渐变时间
+			deforDuration     : 600,								// 图片弹框变形时间
+			fadeDuration      : 600,								// 遮罩层和弹出框淡入淡出渐变时间
 			imageFadeDuration : 600,								// 图片淡入淡出渐变时间
-
+			browserDistance   : 100									// 图片弹框距离屏幕上下底框的距离
 		};
 
 		return PicSwitch;
