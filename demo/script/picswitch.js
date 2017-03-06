@@ -175,6 +175,8 @@
 			/**
 			 * prevLoad函数为预加载图片函数
 			 * @param  loadSrc 参数为需要预加载的src
+			 * 此函数可能存在性能损失
+			 * 在window.resize的事件上调用此方法，重复创建了image对象并赋值
 			 */
 			prevLoad : function(loadSrc){
 				var self = this,
@@ -246,6 +248,7 @@
 					if(self.canSwitch){
 						var prevSrc = self.album[--self.currentImageIndex].src;
 						self._switchBtn();
+						self.$close.hide();
 						self.prevLoad(prevSrc);
 					}
 				});
@@ -258,6 +261,7 @@
 					if(self.canSwitch){
 						var nextSrc = self.album[++self.currentImageIndex].src;
 						self._switchBtn();
+						self.$close.hide();
 						self.prevLoad(nextSrc);
 					}
 				});
@@ -266,7 +270,7 @@
 
 				// 为close绑定事件
 				self.$close.click(function(){
-					var array = [self.$prevbtn,self.$nextbtn,self.$close,self.$mask];
+					var array = [self.$prevbtn,self.$nextbtn,self.$close,self.$mask,$(window)];
 					self.$picswitch.fadeOut(self.options.fadeDuration);
 					self.$mask.fadeOut(self.options.fadeDuration);
 					// 隐藏上下切换按钮,并且为所有事件解除绑定
@@ -278,7 +282,7 @@
 
 				// 为mask绑定事件
 				self.$mask.click(function(){
-					var array = [self.$prevbtn,self.$nextbtn,self.$close,self.$mask];
+					var array = [self.$prevbtn,self.$nextbtn,self.$close,self.$mask,$(window)];
 					self.$picswitch.fadeOut(self.options.fadeDuration);
 					self.$mask.fadeOut(self.options.fadeDuration);
 					// 隐藏上下切换按钮,并且为所有事件解除绑定
@@ -286,6 +290,16 @@
 					self.$nextbtn.hide();
 					// 解绑所有绑定事件对象的所有事件
 					self._unbindEvent(array);
+				});
+
+				// 为窗口调节绑定事件
+				self.clear = void 0;
+				$(window).resize(function(){
+					if(self.clear) clearTimeout(self.clear);
+					self.clear = setTimeout(function(){
+						self.$close.hide();
+						self.prevLoad(self.$img.attr("src"));
+					},self.options.windowResizeInterval);
 				});
 			},
 
@@ -327,12 +341,13 @@
 
 
 		PicSwitch.defaults = {
-			albumLabel        : '0 / 0',							// 图片索引
-			deforDuration     : 600,								// 图片弹框变形时间
-			fadeDuration      : 600,								// 遮罩层和弹出框淡入淡出渐变时间
-			imageFadeDuration : 600,								// 图片淡入淡出渐变时间
-			arrowFadeDuration : 200,								// 前后切换按钮淡入淡出渐变时间
-			browserDistance   : 100									// 图片弹框距离屏幕上下底框的距离
+			albumLabel            : '0 / 0',							// 图片索引
+			deforDuration         : 600,								// 图片弹框变形时间
+			fadeDuration          : 600,								// 遮罩层和弹出框淡入淡出渐变时间
+			imageFadeDuration     : 600,								// 图片淡入淡出渐变时间
+			arrowFadeDuration     : 200,								// 前后切换按钮淡入淡出渐变时间
+			browserDistance       : 100,								// 图片弹框距离屏幕上下底框的距离
+			windowResizeInterval  : 500									// 窗口大小调整事件执行间隔时间
 		};
 
 		return PicSwitch;
