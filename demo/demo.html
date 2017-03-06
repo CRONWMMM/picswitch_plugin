@@ -29,9 +29,11 @@
 			<a href="images/2-3.jpg" data-picswitch="group2" title="this is pic 2-3">
 				<img src="images/thumb/2-3.jpg" data-src="images/2-3.jpg" alt="this is pic 2-3">
 			</a>
+			<a href="images/2-4.jpeg" data-picswitch="group3" title="this is pic 2-4">
+				<img src="images/thumb/2-4.jpg" data-src="images/2-4.jpeg" alt="this is pic 2-3">
+			</a>
 		</div>
 	</div>
-
 
 
 
@@ -54,6 +56,18 @@
 	</div>
 	-->
 	<script type="text/javascript" src="script/picswitch.js"></script>
-	<script>PicSwitch.option({deforDuration : 600});</script>
+	<script>PicSwitch.option({
+			deforDuration     : 300,
+			fadeDuration      : 300,
+			imageFadeDuration : 300,
+			arrowFadeDuration : 300,
+			browserDistance   : 100
+		});</script>
 </body>
 </html>
+<!-- 		deforDuration     : 600,								// 图片弹框变形时间
+			fadeDuration      : 600,								// 遮罩层和弹出框淡入淡出渐变时间
+			imageFadeDuration : 600,								// 图片淡入淡出渐变时间
+			arrowFadeDuration : 200,								// 前后切换按钮淡入淡出渐变时间
+			browserDistance   : 100		 
+-->

@@ -21,11 +21,10 @@
 
 	var PicSwitch = (function(){
 		function PicSwitch(options){
-			// 定义一个album属性
-			// 用于存放所有相同组别的图片对象信息
-			this.album = [];
-			this.group = void 0;
-			this.currentImageIndex = void 0;
+			this.album = [];							// album属性，用于存放所有相同组别的图片对象信息
+			this.group = void 0;						// group属性，用于存放当前组名
+			this.currentImageIndex = void 0;			// currentImageIndex属性，用于存放当前图片的索引
+			this.canSwitch = false;						// canSwitch属性，用于控制是否可以执行图片切换
 			// 调用init方法进行初始化
 			this.init();
 
@@ -124,8 +123,9 @@
 					title        = $this.attr("title");
 					currentgroup = $this.attr("data-picswitch");
 				fillAlbum(currentgroup);
+				getCurrentIndex(currentsrc);
 				self.initPop(currentsrc);
-				
+				self._bindEvent();
 
 				/**
 				 * fillAlbum 函数用于获得图片集里所有图片信息，并保存到album中
@@ -143,6 +143,18 @@
 					}
 				}
 
+				/**
+				 * getCurrentIndex 函数用于获得当前点击图片的index索引
+				 * @param  loadSrc 参数为当前点击图片的大图src
+				 */
+				function getCurrentIndex(loadSrc){
+					for(var i=0;i<self.album.length;i++){
+						if(self.album[i].src === loadSrc){
+							self.currentImageIndex = i;
+							break;
+						}
+					}
+				}
 			},
 
 
@@ -167,12 +179,8 @@
 			prevLoad : function(loadSrc){
 				var self = this,
 					img  = new Image();
-				for(var i=0;i<self.album.length;i++){
-					if(self.album[i].src === loadSrc){
-						self.currentImageIndex = i;
-						break;
-					}
-				}
+				// 关闭canSwitch控制器
+				self.canSwitch = false;
 				self.$img.css({width : "auto",height : "auto"}).hide();
 				img.onload = function(){
 					var width          = 0,
@@ -190,6 +198,10 @@
 					maxImageWidth  = parseInt(windowWidth - (self.containerPadding.left + self.containerPadding.right) - (self.containerBorder.left + self.containerBorder.right));
 					maxImageHeight = parseInt(windowHeight - (self.containerPadding.top + self.containerPadding.bottom) - (self.containerBorder.top + self.containerBorder.bottom) - self.options.browserDistance);
 					
+					// 判断图片宽高是否大于用户允许显示的最大宽度
+					// 如果任何一个超过最大值，就将最大尺寸/当前尺寸，比较得到最小值，如果二者相同就取值1，将这个比率赋值给scale
+					// 显示尺寸就为缩小后的尺寸
+					// 如果两个都在最大值范围内，就将原始图片显示出来
 					if(imageWidth > maxImageWidth || imageHeight > maxImageHeight){
 						scale  = Math.min(maxImageWidth/imageWidth,maxImageHeight/imageHeight,1);
 						width  = parseInt(imageWidth*scale);
@@ -205,14 +217,111 @@
 						marginLeft : -width/2,
 						marginTop  : -height/2
 					},self.options.deforDuration,function(){
+						// 开启canSwitch控制器
+						self.canSwitch = true;
 						self.$img.css("width","100%").fadeIn(self.options.imageFadeDuration);
 						self.$close.fadeIn(self.options.imageFadeDuration);
 						self.$caption.fadeIn(self.options.imageFadeDuration);
 					});
 				};
+
+				// 注意：img.src的赋值操作需要放在onload之后
 				img.src = loadSrc;
+			},
+
+
+			/**
+			 * _bindEvent 函数为绑定事件函数
+			 */
+			_bindEvent : function(){
+				var self = this;
+
+				// 为上下切换按钮绑定hover和click事件
+				self.$prevbtn.hover(function(){
+					$(this).animate({"opacity" : 1},self.options.arrowFadeDuration);
+				},function(){
+					$(this).animate({"opacity" : 0},self.options.arrowFadeDuration);
+				}).click(function(){
+					// 只有canSwitch控制器开启状态才能切换，防止用户连续切换
+					if(self.canSwitch){
+						var prevSrc = self.album[--self.currentImageIndex].src;
+						self._switchBtn();
+						self.prevLoad(prevSrc);
+					}
+				});
+				self.$nextbtn.hover(function(){
+					$(this).animate({"opacity" : 1},self.options.arrowFadeDuration);
+				},function(){
+					$(this).animate({"opacity" : 0},self.options.arrowFadeDuration);
+				}).click(function(){
+					// 只有canSwitch控制器开启状态才能切换，防止用户连续切换
+					if(self.canSwitch){
+						var nextSrc = self.album[++self.currentImageIndex].src;
+						self._switchBtn();
+						self.prevLoad(nextSrc);
+					}
+				});
+				self._switchBtn();
+
+
+				// 为close绑定事件
+				self.$close.click(function(){
+					var array = [self.$prevbtn,self.$nextbtn,self.$close,self.$mask];
+					self.$picswitch.fadeOut(self.options.fadeDuration);
+					self.$mask.fadeOut(self.options.fadeDuration);
+					// 隐藏上下切换按钮,并且为所有事件解除绑定
+					self.$prevbtn.hide();
+					self.$nextbtn.hide();
+					// 解绑所有绑定事件对象的所有事件
+					self._unbindEvent(array);
+				});
+
+				// 为mask绑定事件
+				self.$mask.click(function(){
+					var array = [self.$prevbtn,self.$nextbtn,self.$close,self.$mask];
+					self.$picswitch.fadeOut(self.options.fadeDuration);
+					self.$mask.fadeOut(self.options.fadeDuration);
+					// 隐藏上下切换按钮,并且为所有事件解除绑定
+					self.$prevbtn.hide();
+					self.$nextbtn.hide();
+					// 解绑所有绑定事件对象的所有事件
+					self._unbindEvent(array);
+				});
+			},
+
+
+			/**
+			 * unbindEvent 函数为解绑事件函数
+			 * @param  array 参数是一个用来存放需要解绑对象的数组
+			 */
+			_unbindEvent : function(array){
+				var self = this;
+				// 循环遍历数组中所有对象依次解绑
+				for(var i=0;i<array.length;i++){
+					array[i].unbind();
+				}
+			},
+
+
+			/**
+			 * _switchBtn 函数用于处理前后切换按钮的显示隐藏
+			 */
+			_switchBtn : function(){
+				var self = this;
+				if(self.album.length > 1){
+					// 具体判断
+					if(self.currentImageIndex > 0 && self.currentImageIndex < self.album.length - 1){
+						self.$prevbtn.show().css("opacity",0);
+						self.$nextbtn.show().css("opacity",0);
+					}else if(self.currentImageIndex === self.album.length - 1){
+						self.$prevbtn.show().css("opacity",0);
+						self.$nextbtn.hide();
+					}else if(self.currentImageIndex === 0){
+						self.$nextbtn.show().css("opacity",0);
+						self.$prevbtn.hide();
+					}
+				}
 			}
-	
 
 		}
 
@@ -222,6 +331,7 @@
 			deforDuration     : 600,								// 图片弹框变形时间
 			fadeDuration      : 600,								// 遮罩层和弹出框淡入淡出渐变时间
 			imageFadeDuration : 600,								// 图片淡入淡出渐变时间
+			arrowFadeDuration : 200,								// 前后切换按钮淡入淡出渐变时间
 			browserDistance   : 100									// 图片弹框距离屏幕上下底框的距离
 		};
 
