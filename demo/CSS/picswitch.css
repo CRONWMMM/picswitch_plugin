@@ -1,131 +1,93 @@
-*{
-	padding : 0;
-	margin : 0;
-}
-
-
-#info{
-	display: none;
-	text-align : center;
-	position : fixed;
-	width : 300px;
-	height : 100px;
-	line-height: 100px;
-	top : 50%;
-	left : 50%;
-	margin-left : -150px;
-	margin-top : -50px;
-	background-color : rgba(0,0,0,0.8);
-	color : #fff;
-	border-radius : 5px;
-	z-index : 1002;
-}
-#mask{
-	position : fixed;
-	display: none;
-	top : 0;
-	width : 100%;
-	height : 100%;
-	background-color: rgba(0,0,0,0.85);
-	z-index : 1000;
-	display: none;
-}
-.pic-container{
-	width : 800px;
-	height : 200px;
-	margin : 100px;
-	background-color: #fff;
-	border-radius: 5px;
-	border : 1px solid #dedede;
-}
-.pic-container .pic-title{
-	width : 800px;
-	height : 50px;
-	line-height: 50px;
-	background-color : #eee;
-	border-radius: 5px 5px 0 0;
-	text-align: center;
-}
-.pic-container .pic-section{
-	float : left;
-	margin : 20px 0 20px 20px;
-	max-width : 200px;
-	max-height : 100px;
-	overflow: hidden;
-	background-color : #f7f7f7;
-}
-.pic-container .pic-section img{
-	width : 100%;
-	height : 100%;
-}
 
 
 
-#pic-popup{
-	position : fixed;
-	display: none;
-	top : 20px;
-	left : 50%;
-	width : 800px; 
-	height : 600px;
-	margin-left : -400px;
-	border-radius: 2px;
-	border : 2px solid #fff;
-	background: #fff url(../icon/loading.gif) no-repeat center center;
-	z-index : 1001;
-}
-#pic-popup .pic-close{
-	position : absolute;
-	top : 0;
-	right : 0;
-	width : 60px;
-	height : 60px;
-	border-radius : 0 0 0 60px;
-	background : rgba(0,0,0,0.6) url(../icon/close.png) no-repeat 20px 10px;
-	z-index : 1001;
-	cursor : pointer;
-}
-#pic-popup .pic-view{
-	position : relative;
-	height : 500px;
-	overflow : hidden;
-}
-#pic-popup .pic-view img{
-	display: block;
-}
-#pic-popup .pic-view .switch-btn {
-	position : absolute;
-	top : 0;
-	width : 30%;
-	height : 100%;
-	cursor : pointer;
-}
-#pic-popup .pic-view .switch-prev-btn{
-	left : 0;
-}
-#pic-popup .pic-view .switch-prev-btn-show{
-	background : url(../icon/prev.png) no-repeat left center;
-}
-#pic-popup .pic-view .switch-next-btn{
-	right : 0;
-}
-#pic-popup .pic-view .switch-next-btn-show{
-	background : url(../icon/next.png) no-repeat right center;
-}
-#pic-popup .pic-caption{
-	position : absolute;
-	bottom : 0;
-	width : 100%;
-	height : 60px;
-	line-height: 60px;
-	background-color: rgba(0,0,0,0.8);
-	color : #fff;
-}
-#pic-popup .pic-caption .pic-describtion{
-	margin : 0 12px;
-	float : left;
-}
-#pic-popup .pic-caption .pic-index{
-	margin : 0 12px;
-	float : right;
-}
+
+/*图片弹框模块*/
+	#picswitch{
+		display : none;
+		position : fixed;
+		z-index : 1001;
+		top : 50%;
+		left : 50%;
+
+		width : 500px;
+		height : 300px;
+		margin-left : -250px;
+		margin-top : -150px;
+		border-radius: 5px;
+		border : 5px solid #fff;
+		box-sizing : border-box;
+		-moz-box-sizing : border-box; /* Firefox */
+		-webkit-box-sizing : border-box;/*safari*/
+		
+		background : #fff url(../icon/loading.gif) no-repeat center center;
+	}
+	
+	/*关闭按钮*/
+	#picswitch .pic-close{
+		position : absolute;
+		z-index : 1002;
+		top : 0;
+		right : 0;
+
+		width : 50px;
+		height : 50px;
+		border-radius: 0 0 0 50px;
+		background : rgba(0,0,0,0.6) url(../icon/close.png) no-repeat 18px 6px;
+	}
+	#picswitch .pic-close:hover{
+		cursor : pointer;
+	}
+
+
+	/*图片预览*/
+	#picswitch .pic-view{
+		position : relative;
+		overflow : hidden;
+		width : 100%;
+		height : 100%;
+	}
+	#picswitch .pic-view .pic-btn{
+		position : absolute;
+		top : 0;
+		z-index : 1001;
+
+		width : 30%;
+		height : 100%;
+	}
+	#picswitch .pic-view .pic-btn:hover{
+		cursor : pointer;
+	}
+	#picswitch .pic-view .pic-btn-prev{
+		display : none;
+		left : 0;
+		background : url(../icon/prev.png) no-repeat left center;
+	}
+	#picswitch .pic-view .pic-btn-next{
+		display : none;
+		right : 0;
+		background : url(../icon/next.png) no-repeat right center;
+	}
+
+
+
+	/*图片信息*/
+	/*这块还是存在问题，因为之前设计的时候没有考虑到结构问题，只好把各种数值全部写死了。*/
+	#picswitch .pic-caption{
+		position : absolute;
+		bottom : -55px;
+		left : 0;
+		height : 50px;
+		width : 100%;
+
+		font-size : 12px;
+		letter-spacing : 2px;
+		color : #ccc;
+	}
+	#picswitch .pic-caption .pic-des{
+		max-width : 65%;
+		float : left;
+	}
+	#picswitch .pic-caption .pic-index{
+		float : right;
+	}
