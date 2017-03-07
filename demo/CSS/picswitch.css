@@ -72,10 +72,12 @@
 
 
 	/*图片信息*/
+	/*这块还是存在问题，因为之前设计的时候没有考虑到结构问题，只好把各种数值全部写死了。*/
 	#picswitch .pic-caption{
 		position : absolute;
-		bottom : -30px;
+		bottom : -55px;
 		left : 0;
+		height : 50px;
 		width : 100%;
 
 		font-size : 12px;

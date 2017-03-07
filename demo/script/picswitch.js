@@ -137,7 +137,8 @@
 						self.album = [];
 						$("*[data-picswitch=" + groupName + "]").each(function(){
 							self.album.push({
-								src : $(this).find("img").attr("data-src")
+								src : $(this).find("img").attr("data-src"),
+								des : $(this).attr("title")
 							});
 						});
 					}
@@ -185,16 +186,20 @@
 				self.canSwitch = false;
 				self.$img.css({width : "auto",height : "auto"}).hide();
 				img.onload = function(){
-					var width          = 0,
-						height         = 0,
-						imageHeight    = 0,
-						imageWidth     = 0,
-						maxImageHeight = 0,
-						maxImageWidth  = 0,
-						scale          = 0,
-						windowHeight   = $(window).height(),
-						windowWidth    = $(window).width();
+					var currentIndex   = 0,							// 当前图片索引
+						totalImages    = 0,							// 图片总数
+						width          = 0,							// 图片最终的显示宽度
+						height         = 0,							// 图片最终的显示高度
+						imageHeight    = 0,							// 图片的原始高度
+						imageWidth     = 0,							// 图片的原始宽度
+						maxImageHeight = 0,							// 当前窗口允许图片显示的最大高度
+						maxImageWidth  = 0,							// 当前窗口允许图片显示的最大宽度
+						scale          = 0,							// 显示比率
+						windowHeight   = $(window).height(),		// 当前视口高度
+						windowWidth    = $(window).width();			// 当前视口宽度
 					self.$img.attr("src",img.src);
+					currentIndex   = self.currentImageIndex + 1;
+					totalImages    = self.album.length;
 					imageWidth     = self.$img.width();
 					imageHeight    = self.$img.height();
 					maxImageWidth  = parseInt(windowWidth - (self.containerPadding.left + self.containerPadding.right) - (self.containerBorder.left + self.containerBorder.right));
@@ -223,7 +228,16 @@
 						self.canSwitch = true;
 						self.$img.css("width","100%").fadeIn(self.options.imageFadeDuration);
 						self.$close.fadeIn(self.options.imageFadeDuration);
-						self.$caption.fadeIn(self.options.imageFadeDuration);
+						// 显示图片介绍栏并更改其中内容
+						self.$caption.fadeIn(self.options.imageFadeDuration)
+									 .find(".pic-des")
+									 .html(self.album[self.currentImageIndex].des);
+
+						// 这边其实可以更完善，但是我懒得写了
+						// 将设置图片索引格式的权限留给用户，调用self.options.albumLabel
+						// 将其中数字用正则替换掉，其余保留用户设定的字符，如下
+						// this.options.albumLabel.replace(/%1/g, currentImageNum).replace(/%2/g, totalImages);
+						self.$index.html(currentIndex + " / " + totalImages);
 					});
 				};
 
@@ -301,6 +315,41 @@
 						self.prevLoad(self.$img.attr("src"));
 					},self.options.windowResizeInterval);
 				});
+
+				// 为窗口绑定keydown事件和Esc关闭事件
+				$(window).keydown(function(e){
+					// 阻止默认行文
+					e.preventDefault();
+					switch(e.keyCode){
+						case 37:
+							if(self.options.keyBoardControll && self.canSwitch && self.currentImageIndex > 0){
+								var prevSrc = self.album[--self.currentImageIndex].src;
+								self._switchBtn();
+								self.$close.hide();
+								self.prevLoad(prevSrc);
+							}
+							break; 
+						case 39:
+							if(self.options.keyBoardControll && self.canSwitch && self.currentImageIndex < self.album.length-1){
+								var nextSrc = self.album[++self.currentImageIndex].src;
+								self._switchBtn();
+								self.$close.hide();
+								self.prevLoad(nextSrc);
+							}
+							break;
+						case 27:
+							if(self.options.keyBoardControll){
+								var array = [self.$prevbtn,self.$nextbtn,self.$close,self.$mask,$(window)];
+								self.$picswitch.fadeOut(self.options.fadeDuration);
+								self.$mask.fadeOut(self.options.fadeDuration);
+								// 隐藏上下切换按钮,并且为所有事件解除绑定
+								self.$prevbtn.hide();
+								self.$nextbtn.hide();
+								// 解绑所有绑定事件对象的所有事件
+								self._unbindEvent(array);
+							}
+					}
+				});
 			},
 
 
@@ -341,13 +390,14 @@
 
 
 		PicSwitch.defaults = {
-			albumLabel            : '0 / 0',							// 图片索引
+			albumLabel            : '0 / 0',							// 图片索引格式
 			deforDuration         : 600,								// 图片弹框变形时间
 			fadeDuration          : 600,								// 遮罩层和弹出框淡入淡出渐变时间
 			imageFadeDuration     : 600,								// 图片淡入淡出渐变时间
 			arrowFadeDuration     : 200,								// 前后切换按钮淡入淡出渐变时间
 			browserDistance       : 100,								// 图片弹框距离屏幕上下底框的距离
-			windowResizeInterval  : 500									// 窗口大小调整事件执行间隔时间
+			windowResizeInterval  : 500,								// 窗口大小调整事件执行间隔时间
+			keyBoardControll	  : true								// 是否可以键盘控制，默认true
 		};
 
 		return PicSwitch;
