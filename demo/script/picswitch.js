@@ -318,7 +318,7 @@
 
 				// 为窗口绑定keydown事件和Esc关闭事件
 				$(window).keydown(function(e){
-					// 阻止默认行文
+					// 阻止默认行为
 					e.preventDefault();
 					switch(e.keyCode){
 						case 37:
